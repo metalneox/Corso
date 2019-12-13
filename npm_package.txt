@@ -1,0 +1,2 @@
+npm install express mariadb sequelize dotenv bcrypt jsonwebtoken email-validator body-parser --save 
+

@@ -1,0 +1,194 @@
+# Node server
+
+mkdir node-https-server
+cd node-https-server
+npm init
+touch server.js
+code .
+
+// Inizializzano la connessione
+
+// 1. Genero la chiave privata del server
+// openssl genrsa -out cert.key 2048
+
+// 2. Creo dalla chiave privata una richiesta di certificato
+openssl req -new -key cert.key -out cert.csr \
+-subj "/C=US/ST=CA/O=Acme,Inc./CN=example.com" \
+-reqexts SAN \
+-config <(cat /etc/ssl/openssl.cnf \
+        <(printf "\n[SAN]\nsubjectAltName=DNS:example.com,DNS:www.example.com"))
+        
+--- Caso Certificate Authority Esterna
+// 3. Giro la richiesta a un CA (Autorità di Certificazione)
+
+// 4. La CA verifica che voi siate il proprietario del dominio web per il quale state generando il certificato (Common Name)
+// postmaster@nomedominio.com -> Click sul link verifica la proprietà del dominio
+// Tramite aggiunta di record DNS ()
+// Verifica l'esistenza dell'azienda nel caso di Green Bar
+
+// 5. La CA vi ritorna il vostro certificato pubblico (Chain)
+--- Certificate Authority Creata da noi
+// Creo la chiave segreta
+openssl genrsa -des3 -out rootCA.key 4096
+// Creo il certificato pubblico
+openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.crt
+// Stampo la richiesta per verificare che sia tutto ok
+openssl req -in cert.csr -noout -text
+// Verifico la richiesta fatta
+
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n stable
+
+---
+
+const fs = require('fs')
+var https = require('https');
+var certificate =fs.readFileSync('cert.crt',{encoding:'utf8'},function(err, data ) {
+    console.log( data );});
+var privateKey  = fs.readFileSync('cert.key',{encoding:'utf8'},function(err, data ) {
+    console.log( data );});
+    
+var credentials = {
+    key: privateKey,
+    cert: certificate
+};
+var httpsServer = https.createServer(credentials, (req)=> {
+
+});
+    httpsServer.listen(8080, function() {
+    console.log('HTTPS server listening on port ' + 8080);
+});
+httpsServer.on('request', function (req, res) {
+    res.setHeader('Content-Type', 'text/html');
+    res.write('Ciao', 'utf-8');
+    res.end()
+    // Process the request here
+  })
+
+---
+
+sudo vi /etc/hosts
+
+Dentro inserite
+
+127.0.0.1 example.com
+
+
+
+# Serverless
+sudo npm install -g serverless
+
+mkdir node-serverless
+cd node-serverless
+npm init
+
+---
+  
+Vantaggi Serverless
+- Scalare velocemente
+- Non dovete occuparvi della gestione dei server
+- Pay per use
+- Calcoli rapidi
+
+Vantaggi Server
+- Per carichi di lavoro sostenuti nel tempo
+- Calcoli intensivi (GPU/CPU)
+
+--serverless.yml
+
+service: demo-ecipar-adileo
+frameworkVersion: ">=1.1.0 <2.0.0"
+provider:
+  name: aws
+  runtime: nodejs12.x
+plugins:
+  - serverless-offline
+functions:
+  currentTime:
+    handler: handler.endpoint
+    events:
+      - http:
+          path: ping
+          method: get
+  testpost:
+    handler: handler.testpost
+    events:
+      - http:
+          path: testpost
+          method: post
+  jwt:
+    handler: handler.jwt
+    events:
+      - http:
+          path: jwt
+          method: post
+
+--handler.js
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const base64url = require('base64-url')
+
+module.exports.endpoint = (event, context, callback) => {
+    
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: `Ciao 2`,
+      }),
+    };
+  
+    callback(null, response);
+
+};
+
+module.exports.testpost = (event, context, callback) => {
+    const postedParameters = JSON.parse(event.body)
+    console.log(postedParameters.test)
+
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: postedParameters.test,
+        }),
+      };
+    
+      callback(null, response);
+}
+module.exports.jwt = (event, context, callback) => {
+    const postedParameters = JSON.parse(event.body)
+    const secretKey = postedParameters.secretKey
+    const payloadInput = postedParameters.payload
+    // JWT usa l'HMAC
+    //const token = jwt.sign(payload, secretKey);
+    header = JSON.stringify({
+        "alg" : "HS256",
+        "typ" : "JWT"
+    })
+    payload = JSON.stringify(payloadInput)
+    console.log(header, payload)
+    const hmac = crypto.createHmac('sha256', secretKey);
+    hmac.on('readable', () => {
+        // Non appena ha generato l'HMAC viene chiamata questa callback
+        const data = hmac.read();
+        if (data) {
+            signature = data
+            const token = base64url.encode(header) + '.' + base64url.encode(payload) + '.' + base64url.encode(signature)
+            const response = {
+                statusCode: 200,
+                body: JSON.stringify({
+                jwt: token
+                }),
+            };
+            
+            callback(null, response);
+          
+        }
+    });
+    // Invio con la write il contenuto da firmare
+    hmac.write(base64url.encode(header)+'.'+base64url.encode(payload));
+    hmac.end();
+    
+}
+---  
+serverless-offline

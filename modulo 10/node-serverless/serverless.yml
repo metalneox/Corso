@@ -1,0 +1,27 @@
+service: demo-ecipar-max
+frameworkVersion: ">=1.1.0 <2.0.0"
+provider:
+  name: aws
+  runtime: nodejs12.x
+plugins:
+  - serverless-offline
+functions:
+  currentTime:
+    handler: handler.endpoint
+    events:
+      - http:
+          path: ping
+          method: get
+  testpost:
+    handler: handler.testpost
+    events:
+      - http:
+          path: testpost
+          method: post
+  jwt:
+    handler: handler.jwt
+    events:
+      - http:
+          path: jwt
+          method: post
+  

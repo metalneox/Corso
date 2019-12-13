@@ -1,0 +1,32 @@
+ci sono utenti
+{
+    email:String
+    password:String
+    firstname:String
+    lastName:String
+    createdAt:DATETIME
+    updatedAt:DATETIME
+    deleteAt:DATETIME
+}
+
+ci sono post
+{
+    id: UUID4
+    title: String
+    text: String
+    fk_user: UUID4  
+    createdAt:DATETIME
+    updatedAt:DATETIME
+    deleteAt:DATETIME
+}
+
+alter table Posts add FOREIGN fk_user REFERENCES Users(id);
+
+fare signUp di utente
+e lettura,creazione,oggiornamento
+e rimozione di post
+
+Aggiornamento
+Token
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDZkZGQ3OC0yY2ZjLTQzOWQtODE3Yy00ZjM1MGYxZDI4NzkiLCJpYXQiOjE1NzA2MTUzNzgsImV4cCI6MTU3MTQ3OTM3OH0.3wR0uVPWqgCmRl1WWCjpsd2VQZhc7OFwg9-bKVq_EaI

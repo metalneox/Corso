@@ -1,0 +1,129 @@
+
+
+52.28.188.211 Mauro
+3.124.2.165 Filippo
+3.125.115.133 Marco
+18.185.85.77 ilaria
+35.159.53.231 Massimo
+
+
+cd
+cd .ssh
+code config
+
+--
+Host ecipar
+  Hostname [VOSTROIP]
+  IdentityFile ~/.ssh/ecipar.pem
+  User ubuntu
+  
+---
+
+code ecipar.pem
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAxw+vcc1oNH1Bb9ygB5JZtJwa6yqSxnsI/aG+zwEUP0L+82gZfYcLD0S9pHWX
+yGugTUVcZFCyT92rgVIg3A7bQXnb67lNfHtfBN4E/lHaVaF22rBHgh9Hhg+lZl9wfNK99AitZjQX
+96Eby9hxVUtc1bTs3FBo+4B5RoaFDqO4jYASywllDHN19sggyqyClfnALPDTG6+MJZ21mT5JOfHx
+wRVXLXIgLq/t+djsIxbWhHMh5rkJC3gTR+sJRX81P2ifHZlKpFq4hnmicyphqOke78vxD+q30+oc
+VWC7Z4DZ2t5E4eCEjMVOK+izaWhW0czCb0e2OBY7PpTfim7lwhFWLwIDAQABAoIBAQCF945xnnXE
+7Y8+g1LIBbyNiomrPums3ly8pUBO/EDuGl6O3b5Z9qqAyhh/OAzAe35Uwptdf9mhWmP0Epu+vdjd
+he92Ay2c20Klee4OYnP4MURWBVD6x6ZRGPKNpSmFOCdStwxLvj9rDmgwligf6So/QRYvZ4ZfzKTR
+y/J8Wb74qssZZmfOX12giDI2nFBqUL/6cl9aNYJuzndCHoPJ/mDSlXoQGSRwITgOqabpxA6AYsIL
+IhPTnUisT/d+F5RcaE7Yqvs0OPdejxLXszEOiXZ8X9boz8MXzIf1rrR4uiLmYoQX1EOYpqptCSZq
+aA4jqH5fmWlym9qB5HT9LEwdEeRBAoGBAOTyCHQfci+gu+Sb5mypbOb6jFiabukKHtLK9x2a205h
+MbTCLSBTabimsYjQ53FQJAuAjeWoG+ELIyqevtIlA2r2oTryQOuZQw7UMqXQc3vkhvXWC4mTvlqN
+m+zYhuq5ySGbq6qHM0oaSw0sw15r8sb/0SlGxgjg04mMeco4icVfAoGBAN6Vm7KAv/dFnH/7kOnJ
+BY/8wnkP5DgNjHqg7OF8vPtWYVOQzdkE4XgzlKkIaHvfeqPETODWxqe6dg4MUZsFVXSYrJuDChLP
+2lzt55UEXAXYExS8z4WAfsgYFVtNUNBCbN8MuDcycmldjH7ORN9xA912RFCgEfUoGHmb1fdkcNEx
+AoGAd6F1A2CvJO4DYFiKVjtNuYAwN9gynjj4lEMUT3bso48sDvzr4ZlUg/UujYRDe7VZsFzzSI7I
+SpasQIgExAAtQgYvh4Kwo6tJHAWLlZNP1Ow8DVdUXgZCkESwtlkKXrrHu3UBhbDx/wWwM+kxCTS0
+/oEMBVqC/n6kapppxV43t1cCgYBA8qCq1lytV1eSFKK1RN3lpNhOIO/z1yg9hAV6yj4OjKb7jk4y
+W/U6cLqZFAYA1zXe4WGZXbI7sPHPqZKKTGUiD4aWHgdrc9EAur6PQeVkIyd2Lp3TE6pq0nQw3v+M
+tUU1VG3QVV0DF7PuMFvyYvTAw0ityfdTdK6nlWw6sskkkQKBgE4Y30/IYZlr4VLtcaGSZpSdto3L
+gD8Gge4D98i0MRGLrtbzGAN9SCMumlPfeMSPLBpeCRpk0VnYZz86Peb1OxE3E5wviWP/J8vUIfBM
+33P5dWg8m3xgJx1qAnfyep9sPIfwKlqM3NmL96UfGsFBrHu5w1XLxuQOB//auUrEoJMi
+-----END RSA PRIVATE KEY-----
+
+---
+
+sudo chmod 400 ecipar.pem
+node -v
+ssh ecipar
+
+---
+
+sudo apt-get update
+sudo apt-get install nodejs
+
+node -v
+
+sudo apt-get install vim
+
+vim server.js
+i
+---
+
+var http = require('http');
+
+// Creo il server e mi metto in ascolto
+http.createServer(function(request, response) {
+  console.log(request.method + " " + request.url);
+  response.writeHead(200, { 'Content-Type': 'text/html' });
+  response.write('Hello world!', 'utf-8');
+  response.end();
+}).listen(80);
+
+---
+
+:wq
+
+cat server.js
+
+node server.js
+
+
+
+---
+
+mkdir client
+cd client
+sudo apt-get install npm
+npm init
+npm install mqtt -s
+
+
+
+
+
+IP MQTT Mosca Server
+mqtt://52.59.210.166
+---
+
+var mqtt = require('mqtt')
+														//buggato mqtt://test.mosquitto.org
+var client  = mqtt.connect('mqtt://52.59.210.166')
+ 
+client.on('connect', function () {
+//   client.subscribe('presence', function (err) {
+//     if (!err) {
+//       client.publish('presence', 'Hello mqtt')
+//     }
+//   })
+    client.subscribe("ecipar")
+    setInterval(function () {
+        client.publish("ecipar", "Adileo")
+    }, 5000)
+    
+})
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(topic, message.toString())
+//   client.end()
+})
+
+
+
+
+

@@ -1,0 +1,9 @@
+Realizzare api che permetta la visione di una lista di piatti
+{
+    name:String,
+    allergens: [],
+    description: String,
+    price: Float(Double)
+}
+
+E il loro inserimento

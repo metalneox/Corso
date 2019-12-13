@@ -1,0 +1,33 @@
+Una specie gestionale magazzino
+
+Ci sono utenti e ordini
+Utente
+{	name:String
+	email: String
+	password: String
+	
+}
+
+ORDINI
+{
+	itemName:String
+	billingAddress: ""
+}
+
+ITEMS
+{
+	name: String
+}
+
+
+
+//entry pointer ordine e inserire ordine solo se si � registrati 
+
+API REGISTRARE UTENTE
+//SOLO SE AUTENTICATO 
+/order/:orderId/items
+
+API PER INSERIRE ITEMS E FARE GET ITEMS DI UN ORDINE
+API PER PRENDERE ORDINE e INSERIRE ORDINE
+SOLO
+

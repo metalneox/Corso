@@ -1,0 +1,73 @@
+mkdir node-https-server
+cd node-https-server
+npm init
+touch server.js
+code .
+
+// Inizializzano la connessione
+
+// 1. Genero la chiave privata del server
+// openssl genrsa -out cert.key 2048
+
+// 2. Creo dalla chiave privata una richiesta di certificato
+openssl req -new -key cert.key -out cert.csr \
+-subj "/C=US/ST=CA/O=Acme,Inc./CN=example.com" \
+-reqexts SAN \
+-config <(cat /etc/ssl/openssl.cnf \
+        <(printf "\n[SAN]\nsubjectAltName=DNS:example.com,DNS:www.example.com"))
+        
+--- Caso Certificate Authority Esterna
+// 3. Giro la richiesta a un CA (Autorità di Certificazione)
+
+// 4. La CA verifica che voi siate il proprietario del dominio web per il quale state generando il certificato (Common Name)
+// postmaster@nomedominio.com -> Click sul link verifica la proprietà del dominio
+// Tramite aggiunta di record DNS ()
+// Verifica l'esistenza dell'azienda nel caso di Green Bar
+
+// 5. La CA vi ritorna il vostro certificato pubblico (Chain)
+--- Certificate Authority Creata da noi
+// Creo la chiave segreta
+openssl genrsa -des3 -out rootCA.key 4096
+// Creo il certificato pubblico
+openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.crt
+// Stampo la richiesta per verificare che sia tutto ok
+openssl req -in cert.csr -noout -text
+// Verifico la richiesta fatta
+
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n stable
+
+---
+
+const fs = require('fs')
+var https = require('https');
+var certificate =fs.readFileSync('cert.crt',{encoding:'utf8'},function(err, data ) {
+    console.log( data );});
+var privateKey  = fs.readFileSync('cert.key',{encoding:'utf8'},function(err, data ) {
+    console.log( data );});
+    
+var credentials = {
+    key: privateKey,
+    cert: certificate
+};
+var httpsServer = https.createServer(credentials, (req)=> {
+
+});
+    httpsServer.listen(8080, function() {
+    console.log('HTTPS server listening on port ' + 8080);
+});
+httpsServer.on('request', function (req, res) {
+    res.setHeader('Content-Type', 'text/html');
+    res.write('Ciao', 'utf-8');
+    res.end()
+    // Process the request here
+  })
+
+---
+
+sudo vi /etc/hosts
+
+Dentro inserite
+
+127.0.0.1 example.com
